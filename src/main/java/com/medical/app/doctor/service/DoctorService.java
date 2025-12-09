@@ -5,10 +5,10 @@ import com.medical.app.doctor.dto.DoctorDto;
 import com.medical.app.doctor.dto.UpdateDoctorRequest;
 import com.medical.app.doctor.entity.Doctor;
 import com.medical.app.doctor.entity.Specialization;
+import com.medical.app.doctor.exception.DoctorAlreadyExistsException;
+import com.medical.app.doctor.exception.DoctorNotFoundException;
 import com.medical.app.doctor.mapper.DoctorMapper;
 import com.medical.app.doctor.repository.DoctorRepository;
-import com.medical.app.exception.ResourceNotFoundException;
-import jakarta.validation.ValidationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -62,32 +62,32 @@ public class DoctorService {
     private void verifyUniqueness(CreateDoctorRequest request) {
         doctorRepository.findByEmail(request.getEmail())
                 .ifPresent(d -> {
-                    throw new ValidationException("email: " + request.getEmail() + " already exists!");
+                    throw new DoctorAlreadyExistsException("email: " + request.getEmail() + " already exists!");
                 });
         doctorRepository.findByPhone(request.getPhone())
                 .ifPresent(d -> {
-                    throw new ValidationException("phone: " + request.getPhone() + " already exists!");
+                    throw new DoctorAlreadyExistsException("phone: " + request.getPhone() + " already exists!");
                 });
         doctorRepository.findByPwzNumber(request.getPwzNumber())
                 .ifPresent(d -> {
-                    throw new ValidationException("pwzNumber: " + request.getPwzNumber() + " already exists!");
+                    throw new DoctorAlreadyExistsException("pwzNumber: " + request.getPwzNumber() + " already exists!");
                 });
     }
 
     private void verifyUniqueness(UpdateDoctorRequest request, Long id) {
-        Doctor doctor = verifyDoctorById(id);
+        verifyDoctorById(id);
         Optional<Doctor> existing = doctorRepository.findByEmail(request.getEmail());
         if (existing.isPresent() && !Objects.equals(existing.get().getId(), id)) {
-            throw new ValidationException("email: " + request.getEmail() + " already exists!");
+            throw new DoctorAlreadyExistsException("email: " + request.getEmail() + " already exists!");
         }
         existing = doctorRepository.findByPhone(request.getPhone());
         if (existing.isPresent() && !Objects.equals(existing.get().getId(), id)) {
-            throw new ValidationException("phone: " + request.getPhone() + " already exists!");
+            throw new DoctorAlreadyExistsException("phone: " + request.getPhone() + " already exists!");
         }
     }
 
     private Doctor verifyDoctorById(Long id) {
         return doctorRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("id: " + id + " not found"));
+                .orElseThrow(() -> new DoctorNotFoundException(id));
     }
 }
