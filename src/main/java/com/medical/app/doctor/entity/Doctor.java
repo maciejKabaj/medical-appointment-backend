@@ -1,5 +1,6 @@
 package com.medical.app.doctor.entity;
 
+import com.medical.app.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -11,6 +12,10 @@ import lombok.Setter;
 @NoArgsConstructor
 @Entity
 public class Doctor {
+
+    @OneToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +30,6 @@ public class Doctor {
 
     @Enumerated(EnumType.STRING)
     private Specialization specialization;
-
-    @Column(nullable = false, unique = true)
-    private String email;
 
     @Column(nullable = false, unique = true)
     private String phone;

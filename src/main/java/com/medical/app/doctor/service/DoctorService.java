@@ -9,6 +9,10 @@ import com.medical.app.doctor.exception.DoctorAlreadyExistsException;
 import com.medical.app.doctor.exception.DoctorNotFoundException;
 import com.medical.app.doctor.mapper.DoctorMapper;
 import com.medical.app.doctor.repository.DoctorRepository;
+import com.medical.app.user.entity.User;
+import com.medical.app.user.exception.UserAlreadyExistsException;
+import com.medical.app.user.factory.UserFactory;
+import com.medical.app.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +26,20 @@ public class DoctorService {
 
     private final DoctorRepository doctorRepository;
     private final DoctorMapper doctorMapper;
+    private final UserRepository userRepository;
+    private final UserFactory userFactory;
 
     public DoctorDto createDoctor(CreateDoctorRequest request) {
-        verifyUniqueness(request);
+        verifyDoctorUniqueness(request);
+        verifyUserUniqueness(request);
+        User user = userFactory.createDoctorUser(request.getEmail(), request.getPassword());
+        User savedUser = userRepository.save(user);
         Doctor doctor = doctorMapper.toEntity(request);
-        Doctor saved = doctorRepository.save(doctor);
-        return doctorMapper.toDto(saved);
+        doctor.setUser(savedUser);
+        Doctor savedDoctor = doctorRepository.save(doctor);
+        return doctorMapper.toDto(savedDoctor);
     }
+
 
     public DoctorDto getDoctorById(Long id) {
         return doctorMapper.toDto(verifyDoctorById(id));
@@ -47,7 +58,7 @@ public class DoctorService {
     }
 
     public DoctorDto updateDoctor(Long id, UpdateDoctorRequest request) {
-        verifyUniqueness(request, id);
+        verifyDoctorUniqueness(request, id);
         Doctor doctor = verifyDoctorById(id);
         doctorMapper.updateEntity(doctor, request);
         Doctor saved = doctorRepository.save(doctor);
@@ -59,11 +70,7 @@ public class DoctorService {
         doctorRepository.delete(doctor);
     }
 
-    private void verifyUniqueness(CreateDoctorRequest request) {
-        doctorRepository.findByEmail(request.getEmail())
-                .ifPresent(d -> {
-                    throw new DoctorAlreadyExistsException("email: " + request.getEmail() + " already exists!");
-                });
+    private void verifyDoctorUniqueness(CreateDoctorRequest request) {
         doctorRepository.findByPhone(request.getPhone())
                 .ifPresent(d -> {
                     throw new DoctorAlreadyExistsException("phone: " + request.getPhone() + " already exists!");
@@ -74,13 +81,9 @@ public class DoctorService {
                 });
     }
 
-    private void verifyUniqueness(UpdateDoctorRequest request, Long id) {
+    private void verifyDoctorUniqueness(UpdateDoctorRequest request, Long id) {
         verifyDoctorById(id);
-        Optional<Doctor> existing = doctorRepository.findByEmail(request.getEmail());
-        if (existing.isPresent() && !Objects.equals(existing.get().getId(), id)) {
-            throw new DoctorAlreadyExistsException("email: " + request.getEmail() + " already exists!");
-        }
-        existing = doctorRepository.findByPhone(request.getPhone());
+        Optional<Doctor> existing = doctorRepository.findByPhone(request.getPhone());
         if (existing.isPresent() && !Objects.equals(existing.get().getId(), id)) {
             throw new DoctorAlreadyExistsException("phone: " + request.getPhone() + " already exists!");
         }
@@ -89,5 +92,12 @@ public class DoctorService {
     private Doctor verifyDoctorById(Long id) {
         return doctorRepository.findById(id)
                 .orElseThrow(() -> new DoctorNotFoundException(id));
+    }
+
+    private void verifyUserUniqueness(CreateDoctorRequest request) {
+        userRepository.findByEmail(request.getEmail())
+                .ifPresent(d -> {
+                    throw new UserAlreadyExistsException("email: " + request.getEmail() + " already exists!");
+                });
     }
 }

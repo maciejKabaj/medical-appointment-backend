@@ -26,10 +26,6 @@ public class UpdateDoctorRequest {
     private Specialization specialization;
 
     @NotBlank
-    @Email
-    private String email;
-
-    @NotBlank
     private String phone;
 
     private String description;

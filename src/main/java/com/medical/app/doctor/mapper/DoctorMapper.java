@@ -15,7 +15,6 @@ public class DoctorMapper {
                 .firstName(doctor.getFirstName())
                 .lastName(doctor.getLastName())
                 .specialization(doctor.getSpecialization())
-                .email(doctor.getEmail())
                 .phone(doctor.getPhone())
                 .description(doctor.getDescription())
                 .build();
@@ -26,20 +25,17 @@ public class DoctorMapper {
         doctor.setFirstName(request.getFirstName());
         doctor.setLastName(request.getLastName());
         doctor.setSpecialization(request.getSpecialization());
-        doctor.setEmail(request.getEmail());
         doctor.setPhone(request.getPhone());
         doctor.setPwzNumber(request.getPwzNumber());
         doctor.setDescription(request.getDescription());
         return doctor;
     }
 
-    public Doctor updateEntity(Doctor doctor, UpdateDoctorRequest request) {
+    public void updateEntity(Doctor doctor, UpdateDoctorRequest request) {
         doctor.setFirstName(request.getFirstName());
         doctor.setLastName(request.getLastName());
         doctor.setSpecialization(request.getSpecialization());
-        doctor.setEmail(request.getEmail());
         doctor.setPhone(request.getPhone());
         doctor.setDescription(request.getDescription());
-        return doctor;
     }
 }

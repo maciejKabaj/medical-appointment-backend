@@ -23,11 +23,13 @@ public class CreateDoctorRequest {
     private Specialization specialization;
 
     @NotBlank
-    @Email
+    private String phone;
+
+    @Email @NotBlank
     private String email;
 
     @NotBlank
-    private String phone;
+    private String password;
 
     @NotBlank
     @Size(min = 7, max = 7)

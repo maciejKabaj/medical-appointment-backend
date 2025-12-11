@@ -1,5 +1,8 @@
 package com.medical.app.doctor.entity;
 
+import lombok.Getter;
+
+@Getter
 public enum Specialization {
 
     INTERNAL_MEDICINE("Internal Medicine"),
@@ -14,10 +17,6 @@ public enum Specialization {
 
     Specialization(String description) {
         this.description = description;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     @Override
