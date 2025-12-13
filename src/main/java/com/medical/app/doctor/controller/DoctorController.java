@@ -32,14 +32,11 @@ public class DoctorController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DoctorDto>> getAllDoctors() {
-        List<DoctorDto> dto = doctorService.getAllDoctors();
-        return ResponseEntity.ok(dto);
-    }
-
-    @GetMapping("/find")
-    public ResponseEntity<List<DoctorDto>> getDoctorsBySpecialization(@RequestParam Specialization specialization) {
-        return ResponseEntity.ok(doctorService.getDoctorsBySpecialization(specialization));
+    public ResponseEntity<List<DoctorDto>> getDoctors(@RequestParam(required = false) Specialization specialization) {
+        if (specialization != null) {
+            return ResponseEntity.ok(doctorService.getDoctorsBySpecialization(specialization));
+        }
+        return ResponseEntity.ok(doctorService.getAllDoctors());
     }
 
     @PutMapping("/{doctorId}")
@@ -50,6 +47,6 @@ public class DoctorController {
     @DeleteMapping("/{doctorId}")
     public ResponseEntity<Void> deleteDoctor(@PathVariable Long doctorId) {
         doctorService.deleteDoctor(doctorId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
