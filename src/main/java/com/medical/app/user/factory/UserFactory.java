@@ -21,16 +21,25 @@ public class UserFactory {
     private final BCryptPasswordEncoder passwordEncoder;
 
     public User createDoctorUser(String email, String rawPassword) {
+        return buildUser(email,rawPassword, Role.DOCTOR);
+    }
+
+    public User createPatientUser(String email, String rawPassword) {
+        return buildUser(email,rawPassword, Role.PATIENT);
+    }
+
+    private User buildUser(String email, String rawPassword, Role role) {
         validator.validatePasswordStrength(rawPassword);
         String passwordHash = passwordEncoder.encode(rawPassword);
         User user = new User();
         user.setEmail(email);
         user.setPasswordHash(passwordHash);
-        user.setRole(Role.DOCTOR);
+        user.setRole(role);
         user.setActive(true);
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
         return user;
     }
+
 }
 

@@ -67,6 +67,8 @@ public class DoctorService {
 
     public void deleteDoctor(Long id) {
         Doctor doctor = verifyDoctorById(id);
+        doctor.getUser().setActive(false);
+        userRepository.save(doctor.getUser());
         doctorRepository.delete(doctor);
     }
 
@@ -89,15 +91,15 @@ public class DoctorService {
         }
     }
 
-    private Doctor verifyDoctorById(Long id) {
-        return doctorRepository.findById(id)
-                .orElseThrow(() -> new DoctorNotFoundException(id));
-    }
-
     private void verifyUserUniqueness(CreateDoctorRequest request) {
         userRepository.findByEmail(request.getEmail())
                 .ifPresent(d -> {
                     throw new UserAlreadyExistsException("email: " + request.getEmail() + " already exists!");
                 });
+    }
+
+    private Doctor verifyDoctorById(Long id) {
+        return doctorRepository.findById(id)
+                .orElseThrow(() -> new DoctorNotFoundException(id));
     }
 }
